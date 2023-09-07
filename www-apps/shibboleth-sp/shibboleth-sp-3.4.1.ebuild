@@ -23,9 +23,9 @@ IUSE="ads doc odbc fastcgi"
 DEPEND="dev-libs/openssl
 	=dev-libs/log4shib-2.0.1
 	dev-libs/xerces-c
-	=dev-libs/xml-security-c-2.0.2
-	=dev-cpp/xmltooling-3.0.4
-	=dev-cpp/opensaml-3.0.1"
+	=dev-libs/xml-security-c-2.0.4
+	=dev-cpp/xmltooling-3.2.4
+	=dev-cpp/opensaml-3.2.1"
 
 RDEPEND="dev-libs/fcgi"
 
