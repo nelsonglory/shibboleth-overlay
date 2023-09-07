@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/dev-libs/xml-security-c/xml-security-c-1.6.1.ebuild,v 1.1 2011/08/04 13:53:11 dev-zero Exp $
 
-EAPI="5"
+EAPI="6"
 
 inherit eutils
 
