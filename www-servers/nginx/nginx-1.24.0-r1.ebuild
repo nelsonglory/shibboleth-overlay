@@ -478,7 +478,7 @@ src_configure() {
 
 	if use nginx_modules_http_auth_shibboleth; then
         http_enabled=1
-        myconf+=( --add-module=${SHIB_FASTCGI_MODULE_WD} )
+        myconf+=( --add-dynamic-module=${SHIB_FASTCGI_MODULE_WD} )
     fi
 
 	if use nginx_modules_http_upload_progress; then
