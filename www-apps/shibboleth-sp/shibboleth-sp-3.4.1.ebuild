@@ -2,9 +2,9 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
-EAPI=6
+EAPI=7
 
-inherit apache-module eutils
+inherit apache-module depend.apache tmpfiles
 
 DESCRIPTION="Standards-based middleware which provides Web Single SignOn (SSO) across or within organizational boundaries."
 HOMEPAGE="http://www.shibboleth.net"
@@ -35,28 +35,34 @@ APACHE2_MOD_DEFINE="AUTH_SHIB"
 
 need_apache2_4
 
-src_unpack() {
-	unpack ${A}
-	cd "${S}"
+# Work around Bug #616612
+pkg_setup() {
+	_init_apache2
+	_init_apache2_late
 }
+
+#src_unpack() {
+#	unpack ${A}
+#	cd "${S}"
+#}
+
+# --with-apxs24=/usr/sbin/apxs2 \
 
 src_configure() {
 	econf \
-	    $(use_enable odbc) \
-	    $(use_enable ads adfs) \
-	    $(use_with fastcgi) \
-	    --enable-apache-24 \
-	    --with-apxs24=/usr/sbin/apxs2 \
-	    --localstatedir=/var \
-	    || die "Configuration failed."
+		$(use_enable odbc) \
+		$(use_enable ads adfs) \
+		$(use_with fastcgi) \
+		--enable-apache-24 \
+		--localstatedir=/var
 }
 
 src_compile() {
-	emake || die "Compilation failed."
+	emake
 }
 
 src_install() {
-	emake DESTDIR="${D}" install || die "install failed"
+	emake DESTDIR="${D}" install
 	apache-module_src_install
 	newinitd "${FILESDIR}"/shibd-init.d shibd
 	newconfd "${FILESDIR}"/shibd-conf.d shibd
