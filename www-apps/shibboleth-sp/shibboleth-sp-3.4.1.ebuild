@@ -18,16 +18,13 @@ KEYWORDS="~x86 ~amd64"
 
 IUSE="ads doc odbc fastcgi"
 
-#S=${WORKDIR}/shibboleth-${PV}
-
 DEPEND="dev-libs/openssl
 	=dev-libs/log4shib-2.0.1
 	dev-libs/xerces-c
 	=dev-libs/xml-security-c-2.0.4
 	=dev-cpp/xmltooling-3.2.4
-	=dev-cpp/opensaml-3.2.1"
-
-RDEPEND="dev-libs/fcgi"
+	=dev-cpp/opensaml-3.2.1
+	fastcgi? ( dev-libs/fcgi )"
 
 APACHE2_MOD_FILE="${S}/apache/.libs/mod_shib_24.so"
 APACHE2_MOD_CONF="20_${PN}"
@@ -40,13 +37,6 @@ pkg_setup() {
 	_init_apache2
 	_init_apache2_late
 }
-
-#src_unpack() {
-#	unpack ${A}
-#	cd "${S}"
-#}
-
-# --with-apxs24=/usr/sbin/apxs2 \
 
 src_configure() {
 	econf \
