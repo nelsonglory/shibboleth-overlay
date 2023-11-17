@@ -26,6 +26,14 @@ DEPEND="dev-libs/openssl
 	=dev-cpp/opensaml-3.2.1
 	fastcgi? ( dev-libs/fcgi )"
 
+RDEPEND="dev-libs/openssl
+    =dev-libs/log4shib-2.0.1
+    dev-libs/xerces-c
+    =dev-libs/xml-security-c-2.0.4
+    =dev-cpp/xmltooling-3.2.4
+    =dev-cpp/opensaml-3.2.1
+    fastcgi? ( dev-libs/fcgi )"
+
 APACHE2_MOD_FILE="${S}/apache/.libs/mod_shib_24.so"
 APACHE2_MOD_CONF="20_${PN}"
 APACHE2_MOD_DEFINE="AUTH_SHIB"
