@@ -837,6 +837,13 @@ pkg_postinst() {
 		fi
 	fi
 
+	if use nginx_modules_http_auth_shibboleth; then
+		ewarn ""
+		ewarn "To activate the shibboleth module add:"
+		ewarn "load_module /usr/modules/ngx_http_shibboleth_module.so;"
+		ewarn "to your nginx.conf."
+	fi
+
 	if use nginx_modules_http_spdy; then
 		ewarn ""
 		ewarn "In nginx 1.9.5 the spdy module was superseded by http2."
