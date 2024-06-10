@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -11,16 +11,11 @@ EAPI=8
 #	* sane packaging
 #	* builds cleanly
 #	* does not need a patch for nginx core
+# - Update NGINX_TESTS_REV to the current available revision and run tests.
 # - TODO: test the google-perftools module (included in vanilla tarball)
 
 # prevent perl-module from adding automagic perl DEPENDs
 GENTOO_DEPEND_ON_PERL="no"
-
-# nginx shibboleth (https://github.com/nginx-shib/nginx-http-shibboleth, BSD license)
-SHIB_FASTCGI_MODULE_PV="2.0.2"
-SHIB_FASTCGI_MODULE_P="nginx-http-shibboleth-${SHIB_FASTCGI_MODULE_PV}"
-SHIB_FASTCGI_MODULE_URI="https://github.com/nginx-shib/nginx-http-shibboleth/archive/v${SHIB_FASTCGI_MODULE_PV}.tar.gz"
-SHIB_FASTCGI_MODULE_WD="${WORKDIR}/nginx-http-shibboleth-${SHIB_FASTCGI_MODULE_PV}"
 
 # devel_kit (https://github.com/simpl/ngx_devel_kit, BSD license)
 DEVEL_KIT_MODULE_PV="0.3.1"
@@ -158,6 +153,12 @@ HTTP_LDAP_MODULE_P="nginx-auth-ldap-${HTTP_LDAP_MODULE_PV}"
 HTTP_LDAP_MODULE_URI="https://github.com/kvspb/nginx-auth-ldap/archive/${HTTP_LDAP_MODULE_PV}.tar.gz"
 HTTP_LDAP_MODULE_WD="${WORKDIR}/nginx-auth-ldap-${HTTP_LDAP_MODULE_PV}"
 
+# nginx-vod-module (https://github.com/kaltura/nginx-vod-module, AGPL-3+)
+HTTP_VOD_MODULE_PV="1.33"
+HTTP_VOD_MODULE_P="nginx-vod-module-${HTTP_VOD_MODULE_PV}"
+HTTP_VOD_MODULE_URI="https://github.com/kaltura/nginx-vod-module/archive/${HTTP_VOD_MODULE_PV}.tar.gz"
+HTTP_VOD_MODULE_WD="${WORKDIR}/nginx-vod-module-${HTTP_VOD_MODULE_PV}"
+
 # geoip2 (https://github.com/leev/ngx_http_geoip2_module, BSD-2)
 GEOIP2_MODULE_PV="3.4"
 GEOIP2_MODULE_P="ngx_http_geoip2_module-${GEOIP2_MODULE_PV}"
@@ -165,22 +166,24 @@ GEOIP2_MODULE_URI="https://github.com/leev/ngx_http_geoip2_module/archive/${GEOI
 GEOIP2_MODULE_WD="${WORKDIR}/ngx_http_geoip2_module-${GEOIP2_MODULE_PV}"
 
 # njs-module (https://github.com/nginx/njs, as-is)
-NJS_MODULE_PV="0.8.2"
+NJS_MODULE_PV="0.8.4"
 NJS_MODULE_P="njs-${NJS_MODULE_PV}"
 NJS_MODULE_URI="https://github.com/nginx/njs/archive/${NJS_MODULE_PV}.tar.gz"
 NJS_MODULE_WD="${WORKDIR}/njs-${NJS_MODULE_PV}"
+
+# nginx-tests (http://hg.nginx.org/nginx-tests, BSD-2)
+NGINX_TESTS_REV="0b5ec15c62ed"
 
 # We handle deps below ourselves
 SSL_DEPS_SKIP=1
 AUTOTOOLS_AUTO_DEPEND="no"
 
-inherit autotools lua-single ssl-cert toolchain-funcs perl-module systemd pax-utils
+inherit autotools lua-single multiprocessing ssl-cert toolchain-funcs perl-module systemd pax-utils
 
 DESCRIPTION="Robust, small and high performance http and reverse proxy server"
 HOMEPAGE="https://nginx.org"
 SRC_URI="https://nginx.org/download/${P}.tar.gz
 	${DEVEL_KIT_MODULE_URI} -> ${DEVEL_KIT_MODULE_P}.tar.gz
-	${SHIB_FASTCGI_MODULE_URI} -> ${SHIB_FASTCGI_MODULE_P}.tar.gz
 	nginx_modules_http_auth_ldap? ( ${HTTP_LDAP_MODULE_URI} -> ${HTTP_LDAP_MODULE_P}.tar.gz )
 	nginx_modules_http_auth_pam? ( ${HTTP_AUTH_PAM_MODULE_URI} -> ${HTTP_AUTH_PAM_MODULE_P}.tar.gz )
 	nginx_modules_http_brotli? ( ${HTTP_BROTLI_MODULE_URI} -> ${HTTP_BROTLI_MODULE_P}.tar.gz )
@@ -206,19 +209,20 @@ SRC_URI="https://nginx.org/download/${P}.tar.gz
 	nginx_modules_http_upload_progress? ( ${HTTP_UPLOAD_PROGRESS_MODULE_URI} -> ${HTTP_UPLOAD_PROGRESS_MODULE_P}.tar.gz )
 	nginx_modules_http_upstream_check? ( ${HTTP_UPSTREAM_CHECK_MODULE_URI} -> ${HTTP_UPSTREAM_CHECK_MODULE_P}.tar.gz )
 	nginx_modules_http_vhost_traffic_status? ( ${HTTP_VHOST_TRAFFIC_STATUS_MODULE_URI} -> ${HTTP_VHOST_TRAFFIC_STATUS_MODULE_P}.tar.gz )
+	nginx_modules_http_vod? ( ${HTTP_VOD_MODULE_URI} -> ${HTTP_VOD_MODULE_P}.tar.gz )
 	nginx_modules_stream_geoip2? ( ${GEOIP2_MODULE_URI} -> ${GEOIP2_MODULE_P}.tar.gz )
 	nginx_modules_stream_javascript? ( ${NJS_MODULE_URI} -> ${NJS_MODULE_P}.tar.gz )
-	rtmp? ( ${RTMP_MODULE_URI} -> ${RTMP_MODULE_P}.tar.gz )"
+	rtmp? ( ${RTMP_MODULE_URI} -> ${RTMP_MODULE_P}.tar.gz )
+	test? ( https://hg.nginx.org/nginx-tests/archive/${NGINX_TESTS_REV}.tar.gz -> nginx-tests-${NGINX_TESTS_REV}.tar.gz )"
 
 LICENSE="BSD-2 BSD SSLeay MIT GPL-2 GPL-2+
 	nginx_modules_http_security? ( Apache-2.0 )
 	nginx_modules_http_push_stream? ( GPL-3 )"
 
 SLOT="mainline"
-KEYWORDS="amd64 arm arm64 ~loong ~ppc ~ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
 
-# Package doesn't provide a real test suite
-RESTRICT="test"
+RESTRICT="!test? ( test )"
 
 NGINX_MODULES_STD="access auth_basic autoindex browser charset empty_gif
 	fastcgi geo grpc gzip limit_req limit_conn map memcached mirror
@@ -233,7 +237,6 @@ NGINX_MODULES_STREAM_STD="access geo limit_conn map return split_clients
 NGINX_MODULES_STREAM_OPT="geoip realip ssl_preread"
 NGINX_MODULES_MAIL="imap pop3 smtp"
 NGINX_MODULES_3RD="
-	http_auth_shibboleth
 	http_auth_ldap
 	http_auth_pam
 	http_brotli
@@ -256,11 +259,12 @@ NGINX_MODULES_3RD="
 	http_upload_progress
 	http_upstream_check
 	http_vhost_traffic_status
+	http_vod
 	stream_geoip2
 	stream_javascript
 "
 
-IUSE="aio debug +http +http2 http3 +http-cache ktls libatomic pcre +pcre2 pcre-jit rtmp selinux ssl threads vim-syntax +nginx_modules_http_auth_shibboleth"
+IUSE="aio debug +http +http2 http3 +http-cache ktls libatomic pcre +pcre2 pcre-jit rtmp selinux ssl test threads vim-syntax"
 
 for mod in $NGINX_MODULES_STD; do
 	IUSE="${IUSE} +nginx_modules_http_${mod}"
@@ -326,6 +330,7 @@ CDEPEND="
 	nginx_modules_http_dav_ext? ( dev-libs/libxml2 )
 	nginx_modules_http_security? ( dev-libs/modsecurity )
 	nginx_modules_http_auth_ldap? ( net-nds/openldap:=[ssl?] )
+	nginx_modules_http_vod? ( media-video/ffmpeg:0= )
 	nginx_modules_stream_geoip? ( dev-libs/geoip )
 	nginx_modules_stream_geoip2? ( dev-libs/libmaxminddb:= )"
 RDEPEND="${CDEPEND}
@@ -335,7 +340,24 @@ RDEPEND="${CDEPEND}
 DEPEND="${CDEPEND}
 	arm? ( dev-libs/libatomic_ops )
 	libatomic? ( dev-libs/libatomic_ops )"
-BDEPEND="nginx_modules_http_brotli? ( virtual/pkgconfig )"
+BDEPEND="
+	nginx_modules_http_brotli? ( virtual/pkgconfig )
+	test? (
+		dev-lang/perl
+		dev-perl/Cache-Memcached
+		dev-perl/Cache-Memcached-Fast
+		dev-perl/CryptX
+		dev-perl/FCGI
+		dev-perl/GD
+		dev-perl/Net-SSLeay
+	)"
+# Unpackaged perl modules which would be used by tests
+# Protocol::WebSocket
+# SCGI
+
+# Uwsgi doesn't start in tests
+# www-servers/uwsgi
+
 PDEPEND="vim-syntax? ( app-vim/nginx-syntax )"
 
 REQUIRED_USE="pcre-jit? ( pcre )
@@ -352,7 +374,8 @@ REQUIRED_USE="pcre-jit? ( pcre )
 	nginx_modules_http_dav_ext? ( nginx_modules_http_dav nginx_modules_http_xslt )
 	nginx_modules_http_metrics? ( nginx_modules_http_stub_status )
 	nginx_modules_http_security? ( pcre )
-	nginx_modules_http_push_stream? ( ssl )"
+	nginx_modules_http_push_stream? ( ssl )
+	nginx_modules_http_vod? ( threads )"
 
 pkg_setup() {
 	NGINX_HOME="/var/lib/nginx"
@@ -487,12 +510,6 @@ src_configure() {
 	fi
 
 	# third-party modules
-
-	if use nginx_modules_http_auth_shibboleth; then
-        http_enabled=1
-        myconf+=( --add-dynamic-module=${SHIB_FASTCGI_MODULE_WD} )
-    fi
-
 	if use nginx_modules_http_upload_progress; then
 		http_enabled=1
 		myconf+=( --add-module=${HTTP_UPLOAD_PROGRESS_MODULE_WD} )
@@ -613,6 +630,12 @@ src_configure() {
 		http_enabled=1
 	fi
 
+	if use nginx_modules_http_vod; then
+		http_enabled=1
+		export HTTP_POSTPONE=no
+		myconf+=( --add-module=${HTTP_VOD_MODULE_WD} )
+	fi
+
 	if [ $http_enabled ]; then
 		use http-cache || myconf+=( --without-http-cache )
 		use ssl && myconf+=( --with-http_ssl_module )
@@ -682,7 +705,6 @@ src_configure() {
 		--prefix="${EPREFIX}"/usr \
 		--conf-path="${EPREFIX}"/etc/${PN}/${PN}.conf \
 		--error-log-path="${EPREFIX}"/var/log/${PN}/error_log \
-		--modules-path="${EPREFIX}"/usr/lib64/nginx/modules \
 		--pid-path="${EPREFIX}"/run/${PN}.pid \
 		--lock-path="${EPREFIX}"/run/lock/${PN}.lock \
 		--with-cc-opt="-I${ESYSROOT}/usr/include" \
@@ -840,6 +862,24 @@ src_install() {
 		docinto ${HTTP_LDAP_MODULE_P}
 		dodoc "${HTTP_LDAP_MODULE_WD}"/example.conf
 	fi
+
+	if use nginx_modules_http_vod; then
+		docinto ${HTTP_VOD_MODULE_P}
+		dodoc "${HTTP_VOD_MODULE_WD}"/{CHANGELOG,README}.md
+	fi
+}
+
+src_test() {
+	pushd "${WORKDIR}"/nginx-tests-"${NGINX_TESTS_REV}" > /dev/null || die
+
+	# FIXME: unsure why uwsgi fails to start
+	rm uwsgi*.t || die
+
+	local -x TEST_NGINX_BINARY="${S}/objs/nginx"
+	local -x TEST_NGINX_VERBOSE=1
+
+	prove -v -j $(makeopts_jobs) . || die
+	popd > /dev/null || die
 }
 
 pkg_postinst() {
