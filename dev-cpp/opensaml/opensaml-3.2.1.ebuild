@@ -1,9 +1,9 @@
 # Copyright 1999-2010 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
-EAPI="6"
+EAPI="8"
 
-inherit eutils autotools
+inherit autotools
 
 DESCRIPTION="Open Source Security Assertion Markup Language implementation"
 HOMEPAGE="http://www.opensaml.org/"

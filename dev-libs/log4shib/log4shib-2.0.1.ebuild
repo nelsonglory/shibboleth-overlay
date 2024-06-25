@@ -1,28 +1,21 @@
-# Copyright 1999-2013 Gentoo Foundation
+# Copyright 2023 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="4"
+EAPI=8
 
-DESCRIPTION="Internet2 version for OpenSAML of log4cpp logging framework"
-HOMEPAGE="https://wiki.shibboleth.net/confluence/display/OpenSAML/log4shib"
-SRC_URI="https://shibboleth.net/downloads/log4shib/latest/log4shib-${PV}.tar.gz"
+AUTOTOOLS_AUTORECONF="1"
+AUTOTOOLS_IN_SOURCE_BUILD="1"
 
-KEYWORDS="~amd64 ~x86"
+DESCRIPTION="log4shib library for Shibboleth"
+HOMEPAGE="https://www.shibboleth.net/"
+
+RESTRICT="mirror"
+SRC_URI="https://shibboleth.net/downloads/log4shib/${PV}/${P}.tar.gz -> ${P}.tar.gz"
+
 LICENSE="LGPL-2.1"
 SLOT="0"
-IUSE="debug doc static-libs"
+KEYWORDS="~amd64"
 
-DEPEND="doc? ( app-doc/doxygen )"
-RDEPEND=""
-
-src_configure() {
-	econf --without-idsa \
-		$(use_enable debug) \
-		$(use_enable doc doxygen) \
-		$(use_enable static-libs static)
-}
-
-src_install () {
-	emake DESTDIR="${D}" install
-	dodoc AUTHORS ChangeLog NEWS README THANKS
-}
+DEPEND=""
+RDEPEND="${DEPEND}"
+BDEPEND=">=app-text/doxygen-1.9.5"
